@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge: Compact World-Model Systems for One Use Case</title>
+<meta name="description" content="Forge builds compact, specialized model systems forged for one use case around a domain world model. First results on coding: the 137M Predictor ranks third of 15 judges on a verified fix-recognition benchmark.">
+<meta property="og:title" content="Forge: Compact World-Model Systems for One Use Case">
+<meta property="og:description" content="A 137M-parameter coding world model ranks third of 15 judges, next to Claude Opus 5 and GPT-5.6 Sol, and first at catching broken fixes.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#0A0A0A; --ink-2:#4A5058; --ink-3:#7A828C; --rule:#E3E6EA; --soft:#F5F6F8;
+  --brand:#FF7A59; --brand-ink:#C24E2E; --pred:#0E6B63; --pred-soft:#E3F1EE; --bar:#B9C7D2;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif; --sans:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--brand-ink);text-decoration:none;border-bottom:1px solid rgba(194,78,46,.35)}
+a:hover{border-bottom-color:var(--brand-ink)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.nav .in{max-width:1080px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:var(--sans);font-size:14px}
+.nav .brand{font-weight:600;letter-spacing:.02em;color:var(--ink);border:0}
+.nav .brand span{color:var(--brand)}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:22px}
+.nav ul a{color:var(--ink-2);border:0}
+.nav ul a:hover{color:var(--ink)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.head{padding:64px 0 28px;border-bottom:1px solid var(--rule)}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 18px}
+h1{font-size:44px;line-height:1.12;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;text-wrap:balance;max-width:22ch}
+.authors{font-family:var(--sans);font-size:16px;color:var(--ink);margin:0 0 6px}
+.authors sup{color:var(--brand-ink);font-weight:600}
+.affil{font-family:var(--sans);font-size:14px;color:var(--ink-2);margin:0 0 22px}
+.links{display:flex;flex-wrap:wrap;gap:10px;font-family:var(--sans);font-size:14px}
+.links a{border:1px solid var(--rule);border-radius:6px;padding:8px 14px;color:var(--ink);background:var(--soft)}
+.links a.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.links a:hover{border-color:var(--ink)}
+.abstract{max-width:760px;margin:36px auto 0;padding:26px 28px;background:var(--soft);border-left:3px solid var(--brand)}
+.abstract h2{font-family:var(--sans);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 10px;color:var(--ink-2)}
+.abstract p{margin:0 0 10px;font-size:17.5px}
+main{padding:24px 0 80px}
+.sec{max-width:760px;margin:0 auto;padding:44px 0 0}
+.sec h2{font-size:30px;line-height:1.2;margin:0 0 18px;font-weight:700;letter-spacing:-.005em}
+.sec h2 .n{color:var(--brand-ink);font-family:var(--mono);font-size:16px;font-weight:500;margin-right:14px;vertical-align:middle}
+.sec h3{font-size:21px;margin:30px 0 10px;font-weight:600}
+.sec p{margin:0 0 16px}
+.sec ul,.sec ol{padding-left:22px;margin:0 0 16px}
+.sec li{margin:0 0 8px}
+.sec strong{font-weight:600}
+figure{margin:28px 0 30px}
+.figwide{max-width:1080px;margin:28px auto 34px;padding:0 24px}
+.sec .figwide{width:min(1080px,100vw - 48px);margin-left:calc(50% - min(540px,50vw - 24px));margin-right:0}
+.sec .figwide figcaption{margin-left:0}
+figcaption{font-family:var(--sans);font-size:14px;color:var(--ink-2);margin-top:10px;line-height:1.5;max-width:760px}
+figcaption b{color:var(--ink)}
+.svgbox{border:1px solid var(--rule);border-radius:8px;background:#fff;padding:10px;overflow-x:auto}
+.svgbox svg{display:block;min-width:640px;width:100%;height:auto}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:760px;font-family:var(--sans);font-size:14.5px;font-variant-numeric:tabular-nums}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:11px 12px;border-bottom:1px solid var(--rule);white-space:normal;vertical-align:bottom;line-height:1.3;font-weight:500}
+th small{display:block;text-transform:none;letter-spacing:.03em;font-size:11px;opacity:.85}
+td{padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even) td{background:var(--soft)}
+td.num,th.num{text-align:center;font-family:var(--mono)}
+td.rank{font-family:var(--mono);color:var(--ink-3);width:2.5em}
+td.judge{font-weight:500;white-space:nowrap}
+td.size{color:var(--ink-2);white-space:nowrap}
+.bar{display:flex;align-items:center;gap:10px;min-width:190px}
+.bar .track{flex:1;height:8px;background:var(--rule);border-radius:2px;overflow:hidden}
+.bar .fill{height:100%;background:var(--bar);border-radius:2px}
+.bar .val{font-family:var(--mono);font-weight:500;min-width:3.6em;text-align:right}
+tr.ours td{background:var(--pred-soft)!important}
+tr.ours td.judge{color:var(--pred)}
+tr.ours .fill{background:var(--pred)}
+tr.ours td:first-child{box-shadow:inset 3px 0 0 var(--pred)}
+tr.hl td{font-weight:600}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:8px 0 22px}
+.status div{border:1px solid var(--rule);border-radius:8px;padding:14px 16px;font-family:var(--sans);font-size:14px;line-height:1.45}
+.status b{display:block;font-size:15px;margin-bottom:4px}
+.status .tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:8px}
+.tag.done{background:var(--pred-soft);color:var(--pred)}
+.tag.meas{background:#FDEBE4;color:var(--brand-ink)}
+.tag.rd{background:var(--soft);color:var(--ink-2)}
+.callout{border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin:22px 0;background:var(--soft);font-size:17px}
+.callout p{margin:0 0 10px}
+.callout p:last-child{margin:0}
+.refs{font-family:var(--sans);font-size:14px;color:var(--ink-2)}
+.refs ol{padding-left:22px}
+.refs li{margin-bottom:8px}
+pre{font-family:var(--mono);font-size:13px;background:var(--soft);border:1px solid var(--rule);border-radius:8px;padding:16px;overflow-x:auto;line-height:1.5}
+.foot{border-top:1px solid var(--rule);margin-top:60px;padding:26px 0 40px;font-family:var(--sans);font-size:13.5px;color:var(--ink-2)}
+.foot .in{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (max-width:720px){
+  .sec{padding:36px 18px 0}
+  .sec .figwide{width:100%;margin-left:0;padding:0}
+  body{font-size:17px} h1{font-size:32px} .head{padding:40px 0 22px} .nav ul{display:none} .sec h2{font-size:25px} .abstract{padding:20px 18px} .wrap,.figwide,.foot .in,.nav .in{padding-left:18px;padding-right:18px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="in">
+  <a class="brand" href="#top">Elentaria <span>·</span> Forge</a>
+  <ul><li><a href="#s1">Forging and MALWIM</a></li><li><a href="#s2">The coding instance</a></li><li><a href="#s3">What this means</a></li><li><a href="assets/judge-benchmark-v1.pdf">Benchmark PDF</a></li></ul>
+</div></nav>
+
+<header class="head wrap" id="top">
+  <p class="kicker">Elentaria Research · Technical note · Version 0.0.1 · 10 September 2026</p>
+  <h1>Forge: Compact World-Model Systems Forged for One Use Case</h1>
+  <p class="authors">Khashayar Mansourizadeh<sup>1</sup> and the Forge team<sup>1</sup></p>
+  <p class="affil"><sup>1</sup> Elentaria, Netherlands · Correspondence: <a href="mailto:khashayar@elentaria.ai">khashayar@elentaria.ai</a></p>
+  <div class="links">
+    <a class="primary" href="assets/judge-benchmark-v1.pdf">Judge Benchmark v1 (PDF)</a>
+    <a href="#s2-3">Results table</a>
+    <a href="#cite">Cite</a>
+    <a href="https://www.linkedin.com/posts/khashayar-mansourizadeh_introducing-our-1st-coding-world-model-first-activity-7503437587609653248-yrJ4">Announcement</a>
+  </div>
+  <div class="abstract">
+    <h2>Abstract</h2>
+    <p>Most of the field expects capability to come from ever larger homogeneous models. We take the other road. Forge is a method for building a compact system of specialized parts for one use case, forged around a domain world model that carries long-term memory, understands the domain, and predicts the consequences of actions before they are taken. The parts need not share an architecture; they are connected through trained connectors and each acts as an organ with one job. We call the resulting architecture MALWIM: Multi-Stage Agentic Loops With Inhomogeneous Models.</p>
+    <p>This note describes the first instance, built for software engineering, and reports the first measured results of its organs. The core organ, the Predictor, is a 137-million-parameter coding world model that scores a proposed code change against the issue it is meant to fix, without running any test. On a benchmark of 100 test-verified GitHub issues and 938 candidate changes, it ranks third of 15 judges by balanced accuracy, tied with Gemini 3.8 Flash and behind Claude Opus 5 and GPT-5.6 Sol, and first of all 15 at rejecting broken versions of a fix. The whole system stays under one billion parameters, runs on a single workstation GPU, and was built by two co-founders for under $15,000.</p>
+  </div>
+</header>
+
+<main>
+<section class="sec" id="s1">
+  <h2><span class="n">1</span>Forging and MALWIM</h2>
+  <p>A large language model is one homogeneous network asked to do everything: remember, understand, plan, write, and check. It does all of it adequately and none of it efficiently, and its size makes it expensive to run and impossible for most teams to train or adapt. Forge starts from a different premise. For a well-defined use case, the work decomposes into a small number of distinct jobs, and each job is better served by a part built for it.</p>
+  <p>A forged system has three kinds of parts:</p>
+  <ul>
+    <li><strong>A domain world model at the core.</strong> It holds the long-term memory of the domain and of the current task, understands the state it is looking at, and predicts what a proposed action would do before the action is taken. It is the organ that judges, and its verdict is what lets the system iterate rather than guess.</li>
+    <li><strong>Organs around it.</strong> Each organ owns one step of the end-to-end task: finding where to act, proposing an action, checking it, producing the final output. Organs can be transformers, state-space models, encoders, or small generative models. Nothing requires them to share an architecture, a vocabulary, or a training recipe. This is the inhomogeneous part of the name.</li>
+    <li><strong>Trained connectors.</strong> Organs exchange representations, not prose. A connector is a small trained mapping between the output space of one organ and the input space of the next. Connectors are what turn a set of models into one system.</li>
+  </ul>
+  <p>The loop is the other half of the design. The system does not commit to its first proposal. It proposes, the world model predicts the fitness of the proposal, the proposal is revised, and the loop continues until the world model is satisfied or a budget is spent. Memory carries across iterations and across tasks, so the system improves on a repository the longer it works on it.</p>
+  <figure class="figwide">
+    <div class="svgbox">
+    <svg viewBox="0 0 1040 380" role="img" aria-label="A forged system: organs around a domain world model, connected through trained connectors, with an iteration loop">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4A5058"/></marker>
+        <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#C24E2E"/></marker>
+      </defs>
+      <style>
+        .box{fill:#fff;stroke:#0A0A0A;stroke-width:1.4}
+        .core{fill:#E3F1EE;stroke:#0E6B63;stroke-width:1.8}
+        .t{font-family:"IBM Plex Sans",Arial,sans-serif;font-size:15px;fill:#0A0A0A}
+        .ts{font-family:"IBM Plex Sans",Arial,sans-serif;font-size:12.5px;fill:#4A5058}
+        .tm{font-family:"IBM Plex Mono",monospace;font-size:11px;fill:#7A828C;letter-spacing:.08em}
+        .ln{stroke:#4A5058;stroke-width:1.4;fill:none;marker-end:url(#ah)}
+        .lb{stroke:#C24E2E;stroke-width:1.6;fill:none;marker-end:url(#ahb);stroke-dasharray:5 4}
+        .cn{fill:#FF7A59}
+      </style>
+      <text x="20" y="28" class="tm">FIG. 1  A FORGED SYSTEM (MALWIM)</text>
+      <!-- organs row -->
+      <rect x="40" y="120" width="170" height="64" rx="8" class="box"/><text x="125" y="146" text-anchor="middle" class="t">Organ A</text><text x="125" y="166" text-anchor="middle" class="ts">find where to act</text>
+      <rect x="290" y="120" width="170" height="64" rx="8" class="box"/><text x="375" y="146" text-anchor="middle" class="t">Organ B</text><text x="375" y="166" text-anchor="middle" class="ts">propose an action</text>
+      <rect x="600" y="120" width="170" height="64" rx="8" class="box"/><text x="685" y="146" text-anchor="middle" class="t">Organ D</text><text x="685" y="166" text-anchor="middle" class="ts">produce the output</text>
+      <rect x="840" y="120" width="170" height="64" rx="8" class="box"/><text x="925" y="146" text-anchor="middle" class="t">Hands</text><text x="925" y="166" text-anchor="middle" class="ts">tokens or a small LM</text>
+      <!-- core -->
+      <rect x="290" y="250" width="300" height="96" rx="10" class="core"/>
+      <text x="440" y="282" text-anchor="middle" class="t" style="font-weight:600;fill:#0E6B63">Domain world model</text>
+      <text x="440" y="304" text-anchor="middle" class="ts">long-term memory · understands the state</text>
+      <text x="440" y="322" text-anchor="middle" class="ts">predicts the consequence of an action</text>
+      <!-- connectors as small dots on lines -->
+      <line x1="210" y1="152" x2="288" y2="152" class="ln"/><circle cx="249" cy="152" r="5" class="cn"/>
+      <line x1="460" y1="152" x2="598" y2="152" class="ln"/><circle cx="529" cy="152" r="5" class="cn"/>
+      <line x1="770" y1="152" x2="838" y2="152" class="ln"/><circle cx="804" cy="152" r="5" class="cn"/>
+      <!-- proposal down to core, verdict back (loop) -->
+      <path d="M375 184 L375 248" class="ln"/><circle cx="375" cy="216" r="5" class="cn"/>
+      <path d="M505 248 C505 210 505 200 470 190" class="lb"/>
+      <text x="560" y="220" class="ts" style="fill:#C24E2E">predicted fitness → revise, iterate</text>
+      <!-- memory band -->
+      <path d="M125 184 C125 300 250 330 288 330" class="ln"/>
+      <text x="120" y="250" class="ts">state and history</text>
+      <!-- legend -->
+      <circle cx="40" cy="365" r="5" class="cn"/><text x="52" y="369" class="ts">trained connector</text>
+      <line x1="200" y1="365" x2="240" y2="365" class="lb"/><text x="250" y="369" class="ts">iteration loop</text>
+      <text x="600" y="369" class="ts">organs may differ in architecture; the world model is the judge at every step</text>
+    </svg>
+    </div>
+    <figcaption><b>Figure 1.</b> A forged system. Organs own single steps of the task and exchange representations through trained connectors (orange dots). The domain world model at the core scores every proposal and drives the loop. Organs may be transformers, state-space models, encoders or small generators; none has to be the same kind of model as its neighbour.</figcaption>
+  </figure>
+  <p>Three consequences follow, and they are the point of the method. A forged system is small, because each part is sized for one job; the first instance below stays under one billion parameters in total. It is trainable by a small team, because each organ is trained on its own signal with its own data, on one machine. And it is local, because a system of this size runs on a workstation, and in most configurations at the edge.</p>
+</section>
+
+<section class="sec" id="s2">
+  <h2><span class="n">2</span>The coding instance, version 0.0.1</h2>
+  <p>The first forged system is built for software engineering: given an issue written by a person and a repository, produce the change that resolves it. The task decomposes into the loop in Figure 2.</p>
+  <figure class="figwide">
+    <div class="svgbox">
+    <svg viewBox="0 0 1040 250" role="img" aria-label="The coding loop: localize, propose, predict fitness, iterate, final proposal, connector, output">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4A5058"/></marker><marker id="ahb2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#C24E2E"/></marker></defs>
+      <style>
+        .b2{fill:#fff;stroke:#0A0A0A;stroke-width:1.4}.c2{fill:#E3F1EE;stroke:#0E6B63;stroke-width:1.8}
+        .t2{font-family:"IBM Plex Sans",Arial,sans-serif;font-size:14.5px;fill:#0A0A0A}.s2{font-family:"IBM Plex Sans",Arial,sans-serif;font-size:12px;fill:#4A5058}
+        .m2{font-family:"IBM Plex Mono",monospace;font-size:11px;fill:#7A828C;letter-spacing:.08em}
+        .l2{stroke:#4A5058;stroke-width:1.4;fill:none;marker-end:url(#ah2)}.lb2{stroke:#C24E2E;stroke-width:1.6;fill:none;marker-end:url(#ahb2);stroke-dasharray:5 4}.d2{fill:#FF7A59}
+      </style>
+      <text x="20" y="28" class="m2">FIG. 2  THE CODING LOOP</text>
+      <rect x="30" y="70" width="150" height="62" rx="8" class="b2"/><text x="105" y="96" text-anchor="middle" class="t2">Localizer</text><text x="105" y="116" text-anchor="middle" class="s2">where to act</text>
+      <rect x="240" y="70" width="150" height="62" rx="8" class="b2"/><text x="315" y="96" text-anchor="middle" class="t2">Proposer</text><text x="315" y="116" text-anchor="middle" class="s2">a candidate change</text>
+      <rect x="450" y="70" width="170" height="62" rx="8" class="c2"/><text x="535" y="96" text-anchor="middle" class="t2" style="font-weight:600;fill:#0E6B63">Predictor</text><text x="535" y="116" text-anchor="middle" class="s2">world model: fitness of the change</text>
+      <rect x="680" y="70" width="140" height="62" rx="8" class="b2"/><text x="750" y="96" text-anchor="middle" class="t2">Connector</text><text x="750" y="116" text-anchor="middle" class="s2">trained mapping</text>
+      <rect x="870" y="52" width="150" height="46" rx="8" class="b2"/><text x="945" y="80" text-anchor="middle" class="s2">direct tokenization</text>
+      <rect x="870" y="108" width="150" height="46" rx="8" class="b2"/><text x="945" y="136" text-anchor="middle" class="s2">small coding LM</text>
+      <line x1="180" y1="101" x2="238" y2="101" class="l2"/><circle cx="209" cy="101" r="5" class="d2"/>
+      <line x1="390" y1="101" x2="448" y2="101" class="l2"/><circle cx="419" cy="101" r="5" class="d2"/>
+      <line x1="620" y1="101" x2="678" y2="101" class="l2"/>
+      <path d="M820 96 L868 78" class="l2"/><path d="M820 106 L868 128" class="l2"/>
+      <path d="M535 132 C535 190 315 190 315 134" class="lb2"/>
+      <text x="425" y="205" text-anchor="middle" class="s2" style="fill:#C24E2E">not good enough: revise and iterate, memory carried across iterations</text>
+      <text x="620" y="235" class="s2">final proposal passes to the connector only when the Predictor accepts it</text>
+    </svg>
+    </div>
+    <figcaption><b>Figure 2.</b> Localize, propose, predict fitness, iterate, final proposal, connector, output. The output is either produced directly as tokens or handed to a small coding language model. The Predictor is the domain world model of this instance; it is the organ reported in Section 2.3.</figcaption>
+  </figure>
+
+  <h3>2.1 Status of the organs</h3>
+  <div class="status">
+    <div><span class="tag meas">measured</span><b>Localizer</b>Finds the functions to change. Measured on SWE-bench Verified, 500 issues.</div>
+    <div><span class="tag rd">in development</span><b>Proposer</b>Produces candidate changes in the loop. Design fixed; no number reported yet.</div>
+    <div><span class="tag done">benchmarked</span><b>Predictor</b>The coding world model. Judge Benchmark v1, 15 judges, Section 2.3.</div>
+    <div><span class="tag rd">to be built</span><b>Connector</b>Maps the accepted proposal to tokens or to a small coding LM.</div>
+  </div>
+  <p>We report numbers only where an independent, held-out measurement exists. Where an organ is still in development we describe the design and stop. In particular, no end-to-end SWE-bench result is claimed in this version.</p>
+
+  <h3>2.2 Localizer</h3>
+  <p>The Localizer is a retriever over the functions of a repository, trained on real issue-to-change pairs and evaluated on SWE-bench Verified with the strict rule used by published localizers: a hit at k requires every function touched by the reference fix to be in the top k. Baselines are the base embedding model before training and a 7B coding language model used the way simple agent scaffolds use it.</p>
+  <div class="figwide" style="padding:0"><div class="tablewrap"><table>
+    <thead><tr><th>System</th><th class="num">Acc@1</th><th class="num">Acc@3</th><th class="num">Acc@5</th><th class="num">Acc@10</th></tr></thead>
+    <tbody>
+      <tr><td>Base embedding model, untrained</td><td class="num">7.4 %</td><td class="num">15.0 %</td><td class="num">19.0 %</td><td class="num">23.0 %</td></tr>
+      <tr><td>7B coding LM alone, agent-style localization</td><td class="num">19.6 %</td><td class="num">27.0 %</td><td class="num">29.2 %</td><td class="num">31.2 %</td></tr>
+      <tr class="hl"><td>Forge Localizer</td><td class="num">26.0 %</td><td class="num">38.6 %</td><td class="num">47.0 %</td><td class="num">55.0 %</td></tr>
+      <tr class="hl"><td>Forge Localizer + 7B reranker</td><td class="num">32.2 %</td><td class="num">45.2 %</td><td class="num">49.6 %</td><td class="num">55.0 %</td></tr>
+    </tbody>
+  </table></div>
+  <figcaption><b>Table 1.</b> Function-level localization on SWE-bench Verified (500 issues), strict all-gold accuracy at k. The trained Localizer lifts the base model by 18.6 points at k=1 and 32 points at k=10, and beats the 7B agent-style baseline at every k. Under the looser per-turn view, at least one correct function is in the top 10 for 73.8 % of issues. This organ is not yet at its target; the loop in Figure 2 is designed to recover from imperfect localization by iterating.</figcaption></div>
+
+  <h3>2.3 Predictor: the coding world model</h3>
+  <p>The Predictor answers one question: given the issue, the code as it was, and a proposed change, how far is the change from what the issue asks? It reads the three as text and outputs a single number, 0 for the fix and 1 for anything that is not the fix. It never runs code and never sees a test. It has 137 million parameters.</p>
+  <p>To measure it against the best available judges we built Judge Benchmark v1: 100 test-verified GitHub issues drawn from public SWE-bench-family sources and held out by repository from all our training data. For each issue a judge scores, one at a time, the real fix, a cosmetically altered copy of it, up to four broken versions of it, up to two unrelated commits from the same repository, a fix for a different issue, and an empty change: 938 candidate changes in total. Every judge receives byte-identical inputs of up to 8,192 tokens. The headline metric is balanced accuracy, the average of the share of real fixes accepted (of 200) and the share of wrong changes rejected (of 738), with the decision threshold at the midpoint of the scale.</p>
+  <div class="figwide" style="padding:0"><div class="tablewrap" id="s2-3"><table>
+    <thead><tr><th>#</th><th>Judge</th><th>Size<small>parameters</small></th><th>Balanced accuracy<small>headline</small></th><th class="num">Real fixes accepted<small>of 200</small></th><th class="num">Wrong changes rejected<small>of 738</small></th></tr></thead>
+    <tbody>
+      <tr><td class="rank">1</td><td class="judge">Claude Opus 5</td><td class="size">undisclosed · est. 5–10 T (MoE)</td><td><div class="bar"><div class="track"><div class="fill" style="width:86%"></div></div><span class="val">86.0 %</span></div></td><td class="num">191</td><td class="num">565</td></tr>
+      <tr><td class="rank">2</td><td class="judge">GPT-5.6 Sol</td><td class="size">undisclosed · est. 2–5 T</td><td><div class="bar"><div class="track"><div class="fill" style="width:83.5%"></div></div><span class="val">83.5 %</span></div></td><td class="num">178</td><td class="num">576</td></tr>
+      <tr class="ours"><td class="rank">3</td><td class="judge">Forge Predictor (Coding World Model)</td><td class="size">137 M</td><td><div class="bar"><div class="track"><div class="fill" style="width:80.9%"></div></div><span class="val">80.9 %</span></div></td><td class="num">191</td><td class="num">490</td></tr>
+      <tr><td class="rank">3</td><td class="judge">Gemini 3.8 Flash</td><td class="size">undisclosed</td><td><div class="bar"><div class="track"><div class="fill" style="width:80.9%"></div></div><span class="val">80.9 %</span></div></td><td class="num">182</td><td class="num">523</td></tr>
+      <tr><td class="rank">5</td><td class="judge">gpt-oss-20b</td><td class="size">21 B MoE · 3.6 B active</td><td><div class="bar"><div class="track"><div class="fill" style="width:78.6%"></div></div><span class="val">78.6 %</span></div></td><td class="num">159</td><td class="num">573</td></tr>
+      <tr><td class="rank">6</td><td class="judge">Gemma 4 12B</td><td class="size">12 B · 6-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:77.1%"></div></div><span class="val">77.1 %</span></div></td><td class="num">186</td><td class="num">452</td></tr>
+      <tr><td class="rank">7</td><td class="judge">Qwen3.8-27B</td><td class="size">27.8 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:76.5%"></div></div><span class="val">76.5 %</span></div></td><td class="num">192</td><td class="num">421</td></tr>
+      <tr><td class="rank">8</td><td class="judge">DeepSeek V3.2</td><td class="size">671 B MoE · 37 B active</td><td><div class="bar"><div class="track"><div class="fill" style="width:74.6%"></div></div><span class="val">74.6 %</span></div></td><td class="num">195</td><td class="num">381</td></tr>
+      <tr><td class="rank">9</td><td class="judge">Qwen3-32B</td><td class="size">32.8 B</td><td><div class="bar"><div class="track"><div class="fill" style="width:73.8%"></div></div><span class="val">73.8 %</span></div></td><td class="num">194</td><td class="num">373</td></tr>
+      <tr><td class="rank">10</td><td class="judge">Qwen3-14B</td><td class="size">14.8 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:73%"></div></div><span class="val">73.0 %</span></div></td><td class="num">162</td><td class="num">480</td></tr>
+      <tr><td class="rank">11</td><td class="judge">Llama 3.3 70B</td><td class="size">70 B</td><td><div class="bar"><div class="track"><div class="fill" style="width:72.1%"></div></div><span class="val">72.1 %</span></div></td><td class="num">191</td><td class="num">359</td></tr>
+      <tr><td class="rank">12</td><td class="judge">Gemma 3 27B</td><td class="size">27 B</td><td><div class="bar"><div class="track"><div class="fill" style="width:63.4%"></div></div><span class="val">63.4 %</span></div></td><td class="num">186</td><td class="num">249</td></tr>
+      <tr><td class="rank">13</td><td class="judge">Phi-4</td><td class="size">14 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:57.2%"></div></div><span class="val">57.2 %</span></div></td><td class="num">175</td><td class="num">199</td></tr>
+      <tr><td class="rank">14</td><td class="judge">Qwen2.5-Coder 7B</td><td class="size">7.6 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:57.1%"></div></div><span class="val">57.1 %</span></div></td><td class="num">60</td><td class="num">621</td></tr>
+      <tr><td class="rank">15</td><td class="judge">Mistral-Nemo 12B</td><td class="size">12.2 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:20.1%"></div></div><span class="val">20.1 %</span></div></td><td class="num">27</td><td class="num">197</td></tr>
+    </tbody>
+  </table></div>
+  <figcaption><b>Table 2.</b> Judge Benchmark v1, 15 judges, same 100 issues and 938 candidate changes each. Sizes of open models are as reported by their authors; the three closed models are undisclosed and the figures are third-party estimates. The Predictor and Gemini 3.8 Flash tie at the third decimal. With 100 issues, differences under about three points are within sampling noise. Full description and cost of operation in the <a href="assets/judge-benchmark-v1.pdf">benchmark PDF</a>.</figcaption></div>
+  <p>Three observations from the table. First, the Predictor accepts real fixes as reliably as the best model in the test and rejects broken versions of a fix better than any of the 14 language models, including the two above it; that is the world-model property, predicting what a change does rather than whether it looks plausible. Second, the models fall into two regimes: lenient judges that accept the real fix and most broken variants alike, and strict judges that reject half the broken variants at the price of rejecting real fixes too. The Predictor is the only judge that combines the lenient group's acceptance of real fixes with the strict group's rejection of broken ones. Third, its remaining weakness is specific and known: changes that are valid but address a different issue. That is a training target, not a size problem.</p>
+  <p>Cost: one full run of the benchmark costs $0 for the Predictor and the local open models on a single workstation GPU, and between $1 and $57 per run for the API models at list prices.</p>
+
+  <h3>2.4 Proposer and Connector</h3>
+  <p>The Proposer generates candidate changes for the Localizer's targets and revises them under the Predictor's verdict, with memory carried across iterations and across tasks. Its design is fixed and it is in training; we report no number until a held-out measurement exists, and we note that the end-to-end result will be bounded by the localization and prediction errors above. The Connector, the trained mapping from the accepted proposal to output tokens or to a small coding language model, is the last organ to be built.</p>
+</section>
+
+<section class="sec" id="s3">
+  <h2><span class="n">3</span>What this means, and what is next</h2>
+  <p>The attention of the field is on the largest labs and the largest models. The result in Section 2.3 says something different: a specialized model built on a world-model design, for one use case, can reach the level of the best models in that field, and it can be built by a very small team.</p>
+  <div class="callout">
+    <p>The first forged system was built with under $15,000 of compute by two co-founders in the Netherlands. Completing it, to a full software-engineering system near the state of the art, will take an estimated $10,000 to $30,000 more. The finished system will be under one billion parameters.</p>
+  </div>
+  <p>Three things follow from that size:</p>
+  <ol>
+    <li><strong>Anyone can build one.</strong> A system of this size can be designed, trained and iterated for a specific use case on a budget a small team can raise.</li>
+    <li><strong>It runs where the data is.</strong> A sub-billion system runs on a workstation and, in most configurations, at the edge. Sovereign and on-premise deployment stops being a compromise.</li>
+    <li><strong>Startups can own their model.</strong> The path from wrapper to owner: design, train and integrate a system built for your use case, at or near the performance of the largest general models on that use case.</li>
+  </ol>
+  <p>Next steps, in order: finish the Proposer and the Connector; run the benchmark on all 813 verified issues and add more judges; report the first end-to-end software-engineering result of the complete loop. We will publish each of these here as they are measured, under the same rule as this note: numbers only where an independent, held-out measurement exists.</p>
+  <p>If you work on world models, compact or post-transformer architectures, coding agents, or local and sovereign deployment, and you want to know more or collaborate, write to <a href="mailto:khashayar@elentaria.ai">khashayar@elentaria.ai</a>.</p>
+
+  <h3 id="cite">Citation</h3>
+<pre>@techreport{forge2026,
+  title   = {Forge: Compact World-Model Systems Forged for One Use Case},
+  author  = {Mansourizadeh, Khashayar and the Forge team},
+  institution = {Elentaria},
+  year    = {2026},
+  month   = {September},
+  note    = {Technical note v0.0.1. Judge Benchmark v1: 137M Predictor, 3rd of 15 judges},
+  url     = {https://elentaria-ai.github.io/forge/}
+}</pre>
+
+  <h3>References</h3>
+  <div class="refs"><ol>
+    <li>Jimenez, C. E. et al. SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR 2024. Verified subset, OpenAI and SWE-bench authors, 2024.</li>
+    <li>Badertdinov, I. et al. SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents. 2025.</li>
+    <li>Xia, C. S. et al. Agentless: Demystifying LLM-based Software Engineering Agents. 2024.</li>
+    <li>Meta FAIR CodeGen Team. CWM: An Open-Weights LLM for Research on Code Generation with World Models. 2025.</li>
+    <li>Shum, K. et al. SWE-RM: Execution-free Feedback for Software Engineering Agents. 2025.</li>
+    <li>Elentaria. Judge Benchmark v1: results and cost of operation. September 2026. <a href="assets/judge-benchmark-v1.pdf">PDF</a>.</li>
+  </ol></div>
+</section>
+</main>
+
+<footer class="foot"><div class="in">
+  <span>© 2026 Elentaria · Forge technical note v0.0.1 · 10 September 2026</span>
+  <span><a href="https://elentaria.ai">elentaria.ai</a> · <a href="mailto:khashayar@elentaria.ai">contact</a></span>
+</div></footer>
+</body>
+</html>
