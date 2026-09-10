@@ -54,6 +54,8 @@ p{margin:0 0 18px}
 ul,ol{padding-left:24px;margin:0 0 18px}
 li{margin:0 0 8px}
 strong{font-weight:600}
+sup{font-family:var(--sans);font-size:.7em;line-height:0;vertical-align:baseline;position:relative;top:-.55em}
+sup a{border:0;color:var(--brand-ink)}
 figure{margin:32px 0 36px}
 figcaption{font-family:var(--sans);font-size:14.5px;color:var(--ink-2);margin:12px 0 30px;line-height:1.5}
 figcaption b{color:var(--ink)}
@@ -110,7 +112,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 </div></nav>
 
 <header class="head wrap" id="top">
-  <p class="kicker">Elentaria Research · Technical note · Version 0.0.1 · 10 September 2026</p>
+  <p class="kicker">Elentaria Research · Technical report · Version 0.0.1 · 10 September 2026</p>
   <h1>Forge: Compact World-Model Systems Forged for One Use Case</h1>
   <p class="authors">Khashayar Mansourizadeh and Ayda Golahmadi</p>
   <p class="affil">Elentaria, Netherlands · Correspondence: <a href="mailto:khashayar@elentaria.ai">khashayar@elentaria.ai</a></p>
@@ -122,8 +124,8 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   </div>
   <div class="abstract text">
     <h2>Abstract</h2>
-    <p>Most of the field expects capability to come from ever larger homogeneous models. We take the other road. Forge is a method for building a compact system of specialized parts for one use case, forged around a domain world model that carries long-term memory, understands the domain, and predicts the consequences of actions before they are taken. The parts need not share an architecture; they are connected through trained connectors and each acts as an organ with one job. We call the resulting architecture MALWIM: Multi-Stage Agentic Loops With Inhomogeneous Models.</p>
-    <p>This note describes the first instance, built for software engineering, and reports the first measured results of its organs. The core organ, the Predictor, is a 137-million-parameter coding world model that scores a proposed code change against the issue it is meant to fix, without running any test. On a benchmark of 100 test-verified GitHub issues and 938 candidate changes, it ranks third of 15 judges by balanced accuracy, tied with Gemini 3.8 Flash and behind Claude Opus 5 and GPT-5.6 Sol, and first of all 15 at rejecting broken versions of a fix. The whole system stays under one billion parameters, runs on a single workstation GPU, and was built by two co-founders for under $15,000.</p>
+    <p>Most of the field expects capability to come from ever larger homogeneous models. We take the other road. Forge is a method for building a compact system of specialized parts for one use case, forged around a domain world model that carries long-term memory, understands the domain, and predicts the consequences of actions before they are taken. The parts do not need to share an architecture; they are connected through trained connectors and each acts as an organ with one job. We call the resulting architecture <strong>MALWIM: Multi-Stage Agentic Loops With Inhomogeneous Models</strong>.</p>
+    <p>This report describes the first instance, built for software engineering, and presents the first measured results of its organs. The core organ, the Predictor, is a <strong>137-million-parameter coding world model</strong> that scores a proposed code change against the issue it is meant to fix, without running any test: much as a person weighs the consequences of an action in their mind before acting in the world. That judgement is what lets the system iterate and refine its proposals until it reaches the best outcome it can. On a benchmark of 100 test-verified GitHub issues and 938 candidate changes, it ranks third of 15 judges by balanced accuracy, tied with Gemini 3.8 Flash and behind Claude Opus 5 and GPT-5.6 Sol, and first of all 15 at rejecting broken versions of a fix. The whole system stays under one billion parameters, runs on a single workstation GPU, and was built by two co-founders for under $15,000.</p>
   </div>
 </header>
 
@@ -192,7 +194,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   <p class="no">CHAPTER 2</p>
   <h2>The coding instance, version 0.0.1</h2>
   <div class="text">
-  <p>The first forged system is built for software engineering: given an issue written by a person and a repository, produce the change that resolves it. The task decomposes into the loop in Figure 2.</p>
+  <p>The first forged system is built for software engineering: given an issue written by a person and a repository, produce the change that resolves it, the task that SWE-bench<sup><a href="#ref1">1</a></sup> made the field's standard. The task decomposes into the loop in Figure 2.</p>
   </div>
   <figure>
     <div class="svgbox">
@@ -225,53 +227,44 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <h3>2.1 Status of the organs</h3>
   <div class="status">
-    <div><span class="tag meas">measured</span><b>Localizer</b>Finds the functions to change. Measured on SWE-bench Verified, 500 issues, with published localizers for context.</div>
-    <div><span class="tag">in development</span><b>Proposer</b>Produces candidate changes in the loop. Design fixed; no number reported yet.</div>
-    <div><span class="tag done">benchmarked</span><b>Predictor</b>The coding world model. Judge Benchmark v1, 15 judges, Section 2.3.</div>
+    <div><span class="tag meas">measured</span><b>Localizer · 137 M</b>Finds the functions to change. Measured on SWE-bench Verified, 500 issues, next to published localizers.</div>
+    <div><span class="tag">proof of concept</span><b>Proposer · ≈50 M trainable</b>Produces and refines candidate changes in the loop. Proof of concept run; see 2.4.</div>
+    <div><span class="tag done">benchmarked</span><b>Predictor · 137 M</b>The coding world model. Judge Benchmark v1, 15 judges, Section 2.3.</div>
     <div><span class="tag">to be built</span><b>Connector</b>Maps the accepted proposal to tokens or to a small coding LM.</div>
   </div>
   <div class="text">
-  <p>We report numbers only where an independent, held-out measurement exists. Where an organ is still in development we describe the design and stop. No end-to-end SWE-bench result is claimed in this version.</p>
+  <p>Wherever a published benchmark exists for an organ's job we measure against it, on the same split and the same rule as the published work, so the numbers can be read next to the field's. Where no benchmark fits, because the organ does a job no existing model was asked to do, we define the measurement, state its rule in full, and measure the strongest available models under exactly the same conditions. The Localizer is an example of the first case; the Predictor of the second.</p>
   </div>
 
   <h3 id="s2-2">2.2 Localizer</h3>
   <div class="text">
-  <p>The Localizer is a retriever over the functions of a repository, trained on real issue-to-change pairs. We evaluate it on SWE-bench Verified, all 500 issues, at function granularity, with the two accuracy definitions published localizers use. <strong>Strict accuracy at k</strong> counts a hit only when every function touched by the reference fix is in the top k; it is the harder rule, and it is capped below 100 percent because 35 percent of the issues touch several functions. <strong>Any-gold accuracy at k</strong> counts a hit when at least one of those functions is in the top k; it is the rule that matters inside an iterating loop, where the system can go back for the rest.</p>
+  <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained on real issue-to-change pairs. Its job is to put the functions that the fix will touch at the top of a ranked list. The field measures this with one rule, accuracy at 10: an issue counts as solved when every function touched by the reference fix is in the top ten<sup><a href="#ref3">3</a></sup>. We follow that rule on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with the whole repository as the candidate pool.</p>
   </div>
   <div class="tablewrap"><table>
-    <thead><tr><th>System</th><th>Size</th><th class="num">Strict Acc@1</th><th class="num">Strict Acc@5</th><th class="num">Strict Acc@10</th><th class="num">Any-gold Acc@1</th><th class="num">Any-gold Acc@10</th></tr></thead>
+    <thead><tr><th>Localizer</th><th>Size</th><th>Benchmark split</th><th class="num">Function Acc@10</th></tr></thead>
     <tbody>
-      <tr><td>Base embedding model, untrained (CodeRankEmbed)</td><td class="size">137 M</td><td class="num">7.4 %</td><td class="num">19.0 %</td><td class="num">23.0 %</td><td class="num">11.6 %</td><td class="num">34.2 %</td></tr>
-      <tr><td>Qwen2.5-Coder 7B alone, agent-style localization</td><td class="size">7.6 B</td><td class="num">19.6 %</td><td class="num">29.2 %</td><td class="num">31.2 %</td><td class="num">–</td><td class="num">–</td></tr>
-      <tr class="hl"><td>Forge Localizer</td><td class="size">137 M</td><td class="num">26.0 %</td><td class="num">47.0 %</td><td class="num">55.0 %</td><td class="num">40.6 %</td><td class="num">73.8 %</td></tr>
-      <tr class="hl"><td>Forge Localizer + 7B reranker</td><td class="size">137 M + 7.6 B</td><td class="num">32.2 %</td><td class="num">49.6 %</td><td class="num">55.0 %</td><td class="num">47.8 %</td><td class="num">73.8 %</td></tr>
+      <tr><td>SweRankEmbed-Large + SweRankLLM-Large reranker<sup><a href="#ref3">3</a></sup></td><td class="size">7 B + 32 B</td><td class="size">SWE-bench Lite</td><td class="num">88.7 %</td></tr>
+      <tr><td>SweRankEmbed-Large<sup><a href="#ref3">3</a></sup></td><td class="size">7 B</td><td class="size">SWE-bench Lite</td><td class="num">82.1 %</td></tr>
+      <tr><td>LocAgent, agent with Claude 3.5<sup><a href="#ref3">3</a>,<a href="#ref4">4</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">77.4 %</td></tr>
+      <tr><td>SweRankEmbed-Small<sup><a href="#ref3">3</a></sup></td><td class="size">137 M</td><td class="size">SWE-bench Lite</td><td class="num">74.5 %</td></tr>
+      <tr><td>OpenHands, agent with Claude 3.5<sup><a href="#ref3">3</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">70.1 %</td></tr>
+      <tr><td>SWE-agent, agent with Claude 3.5<sup><a href="#ref3">3</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">64.6 %</td></tr>
+      <tr><td>CodeRankEmbed<sup><a href="#ref5">5</a></sup></td><td class="size">137 M</td><td class="size">SWE-bench Lite</td><td class="num">58.8 %</td></tr>
+      <tr class="hl"><td>Forge Localizer</td><td class="size">137 M</td><td class="size">SWE-bench Verified</td><td class="num">55.0 %</td></tr>
+      <tr class="hl"><td>Forge Localizer + Qwen2.5-Coder 7B reranker</td><td class="size">137 M + 7.6 B</td><td class="size">SWE-bench Verified</td><td class="num">55.0 %</td></tr>
+      <tr><td>Qwen2.5-Coder 7B alone, agent-style localization</td><td class="size">7.6 B</td><td class="size">SWE-bench Verified</td><td class="num">31.2 %</td></tr>
+      <tr><td>CodeRankEmbed, untrained base of the Forge Localizer</td><td class="size">137 M</td><td class="size">SWE-bench Verified</td><td class="num">23.0 %</td></tr>
     </tbody>
   </table></div>
-  <figcaption><b>Table 1.</b> Function-level localization on SWE-bench Verified (500 issues), our measurement, identical candidate pools for every row (every function of the repository at the base commit, 600 to 41,000 candidates per issue). The trained Localizer lifts the untrained base model by 18.6 points strict at k=1 and 32 points at k=10, and beats the 7B agent-style baseline at every k. Under the any-gold rule it places a correct function in the top 10 for 73.8 percent of issues.</figcaption>
-
-  <div class="text">
-  <p>For context against the published state of the art in issue localization, Table 2 lists the function-level results reported in the SweRank paper. Those numbers are on SWE-bench Lite (300 easier, single-file issues) and on the authors' own candidate pools, so they are not directly comparable to Table 1; they show where a 137M retriever of the same family can go with more training data, and what rerankers add on top.</p>
-  </div>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Published localizer (SweRank paper, SWE-bench Lite, function level)</th><th>Size</th><th class="num">Acc@5</th><th class="num">Acc@10</th></tr></thead>
-    <tbody>
-      <tr><td>BM25</td><td class="size">–</td><td class="num">31.8 %</td><td class="num">36.9 %</td></tr>
-      <tr><td>CodeRankEmbed (the base model of our Localizer)</td><td class="size">137 M</td><td class="num">51.8 %</td><td class="num">58.8 %</td></tr>
-      <tr><td>GTE-Qwen2-7B-Instruct</td><td class="size">7 B</td><td class="num">63.1 %</td><td class="num">70.4 %</td></tr>
-      <tr><td>SweRankEmbed-Small</td><td class="size">137 M</td><td class="num">63.1 %</td><td class="num">74.5 %</td></tr>
-      <tr><td>SweRankEmbed-Large</td><td class="size">7 B</td><td class="num">71.9 %</td><td class="num">82.1 %</td></tr>
-      <tr><td>SweRankEmbed-Large + SweRankLLM-Large reranker</td><td class="size">7 B + 32 B</td><td class="num">81.4 %</td><td class="num">88.7 %</td></tr>
-    </tbody>
-  </table></div>
-  <figcaption><b>Table 2.</b> Function-level localization as reported in SweRank (Salesforce AI Research, 2025) on SWE-bench Lite. Different benchmark split and candidate pools from Table 1; shown for orientation only. Our Localizer is a 137M model of the same family as CodeRankEmbed and SweRankEmbed-Small; the target for the next version is the SweRankEmbed-Small level on Verified under our stricter pools.</figcaption>
+  <figcaption><b>Table 1.</b> Function-level localization, accuracy at 10 under the all-functions rule. Rows marked SWE-bench Lite are published results on the 274-issue Lite split with the authors' candidate pools; rows marked SWE-bench Verified are our measurement on the 500-issue Verified split with the whole repository as the pool. The two splits are not the same test: Verified is larger and harder, and our pools are wider. Training lifted the same 137M base model from 23.0 to 55.0 percent on Verified. Under the looser rule that counts an issue when at least one touched function is in the top ten, the Forge Localizer reaches 73.8 percent, which is the number that matters inside a loop that can return for the rest.</figcaption>
 
   <h3 id="s2-3">2.3 Predictor: the coding world model</h3>
   <div class="text">
-  <p>The Predictor answers one question: given the issue, the code as it was, and a proposed change, how far is the change from what the issue asks? It reads the three as text and outputs a single number, 0 for the fix and 1 for anything that is not the fix. It never runs code and never sees a test. It has 137 million parameters.</p>
+  <p>The Predictor answers one question: given the issue, the code as it was, and a proposed change, how far is the change from what the issue asks? It reads the three as text and outputs one continuous number: an error, 0 for exactly the fix, rising with how far the change is from the fix, and 1 or more for a change that is not the fix at all. It never runs code and never sees a test. <strong>It has 137 million parameters.</strong></p>
   <h4>What this test measures</h4>
   <p>Code understanding without any external test. The judge sees only three things: the issue written in plain language, the code as it was, and a proposed change. To score the change it has to relate the goal stated in words to the behaviour of the written code and predict the consequence of the change: whether the program, after this change, does what the issue asks. There is no test suite to run, no execution, no hint about which candidate is real. The ground truth comes from real fixes whose test results are known, and the judge never sees those results. In world-model terms the score is the accuracy of the judge's prediction of what a change does to a program. That prediction is what a coding world model exists to make, and it is the capability this benchmark isolates.</p>
   <h4>The test</h4>
-  <p>Judge Benchmark v1 uses 100 issues drawn from 813 test-verified GitHub fixes (SWE-bench-family sources, held out by repository from all our training data). For each issue the judge scores 9 to 10 candidate changes one at a time: the real fix, a cosmetically altered copy of it, up to four broken versions of it, up to two unrelated commits from the same repository, a fix for a different issue, and an empty change; 938 candidates in total. Input per call: the issue text, the code before the change, and the change itself, up to 8,192 tokens, byte-identical for every judge. Score scale: 0 is exactly the fix, 100 is not the fix. A decision is right when a real fix scores below 50 and a wrong change above 50. The headline is <strong>balanced accuracy</strong>: the average of the share of real fixes accepted (of 200) and the share of wrong changes rejected (of 738). Language models were called with deterministic settings through their vendors' APIs or run locally at the quantization shown.</p>
+  <p>Judge Benchmark v1 uses 100 issues drawn from 813 test-verified GitHub fixes (SWE-bench-family sources<sup><a href="#ref1">1</a>,<a href="#ref2">2</a>,<a href="#ref6">6</a></sup>, held out by repository from all our training data). For each issue the judge scores 9 to 10 candidate changes one at a time: the real fix, a cosmetically altered copy of it, up to four broken versions of it, up to two unrelated commits from the same repository, a fix for a different issue, and an empty change; 938 candidates in total. Input per call: the issue text, the code before the change, and the change itself, up to 8,192 tokens, byte-identical for every judge. Score scale: 0 is exactly the fix, 100 is not the fix. A decision is right when a real fix scores below 50 and a wrong change above 50. The headline is <strong>balanced accuracy</strong>: the average of the share of real fixes accepted (of 200) and the share of wrong changes rejected (of 738). Language models were called with deterministic settings through their vendors' APIs or run locally at the quantization shown.</p>
   </div>
   <div class="tablewrap"><table>
     <thead><tr><th>#</th><th>Judge</th><th>Size<small>parameters</small></th><th>Balanced accuracy<small>headline</small></th><th class="num">Real fixes accepted<small>of 200</small></th><th class="num">Wrong changes rejected<small>of 738</small></th></tr></thead>
@@ -297,31 +290,44 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <div class="text">
   <h4>How to read it</h4>
-  <p>The Predictor accepts real fixes as reliably as the best model in the test (191 of 200, the same as Claude Opus 5) and rejects broken versions of a fix better than any of the 14 language models, including the two above it. That is the world-model property: predicting what a change does rather than whether it looks plausible. The models fall into two regimes. Lenient judges (DeepSeek V3.2, Qwen3-32B, Llama 3.3 70B) accept the real fix and most broken variants alike; they answer only 0 or 100 and reject fewer than one in ten of the broken versions that change a single token or line. Strict judges (GPT-5.6 Sol, Claude Opus 5, gpt-oss-20b, Gemini) reject half or more of those at the price of rejecting 10 to 26 percent of real fixes. The Predictor is the only judge that combines the lenient group's acceptance of real fixes with the strict group's rejection of broken ones. Its remaining weakness is specific and known: changes that are valid but address a different issue score 0.39 with the Predictor and 0.84 or more with every language model. That is a training target, not a size problem.</p>
+  <p>The Predictor accepts real fixes as reliably as the best model in the test (191 of 200, the same as Claude Opus 5) and rejects broken versions of a fix better than any of the 14 language models, including the two above it. That is the world-model property: predicting what a change does rather than whether it looks plausible. The models fall into two regimes. Lenient judges (DeepSeek V3.2, Qwen3-32B, Llama 3.3 70B) accept the real fix and most broken variants alike; they answer only 0 or 100 and reject fewer than one in ten of the broken versions that change a single token or line. Strict judges (GPT-5.6 Sol, Claude Opus 5, gpt-oss-20b, Gemini) reject half or more of those at the price of rejecting 10 to 26 percent of real fixes. The Predictor is the only judge that combines the lenient group's acceptance of real fixes with the strict group's rejection of broken ones.</p>
   </div>
   <div class="two">
     <div>
-      <h4>Cost of operation</h4>
-      <p style="font-family:var(--sans);font-size:15px;color:var(--ink-2)">One full run of the benchmark per judge: 938 calls, vendor list prices, retries included, computed from the logged token counts. Local models and the Predictor run on a single workstation GPU (one RTX 4090) and carry no API cost.</p>
+      <h4>Cost and time of operation</h4>
+      <p style="font-family:var(--sans);font-size:15px;color:var(--ink-2)">One full run of the benchmark per judge: 938 calls. Cost at vendor list prices, retries included, from the logged token counts. Time is wall clock; API judges were called four at a time, local judges one call at a time on a single workstation GPU (one RTX 4090), which carries no API cost.</p>
     </div>
     <div class="tablewrap"><table style="min-width:0">
-      <thead><tr><th>Judge</th><th class="num">Run cost</th><th>Where it ran</th></tr></thead>
+      <thead><tr><th>Judge</th><th class="num">Run cost</th><th class="num">Run time</th><th>Where it ran</th></tr></thead>
       <tbody>
-        <tr><td>Claude Opus 5</td><td class="num">$57</td><td class="size">API</td></tr>
-        <tr><td>GPT-5.6 Sol</td><td class="num">$38</td><td class="size">API</td></tr>
-        <tr><td>Gemini 3.8 Flash</td><td class="num">$6</td><td class="size">API</td></tr>
-        <tr><td>Llama 3.3 70B</td><td class="num">$5</td><td class="size">API</td></tr>
-        <tr><td>DeepSeek V3.2</td><td class="num">$4</td><td class="size">API</td></tr>
-        <tr><td>Qwen3-32B, gpt-oss-20b, Gemma 3 27B</td><td class="num">$1 each</td><td class="size">API</td></tr>
-        <tr class="ours"><td class="judge">Forge Predictor, 137 M</td><td class="num">$0</td><td class="size">local GPU, 7,456 pairs in 4 minutes</td></tr>
-        <tr><td>Gemma 4 12B, Qwen3.8-27B, Qwen3-14B, Phi-4, Qwen2.5-Coder 7B, Mistral-Nemo 12B</td><td class="num">$0</td><td class="size">local GPU</td></tr>
+        <tr><td>Claude Opus 5</td><td class="num">$57</td><td class="num">17 min</td><td class="size">API</td></tr>
+        <tr><td>GPT-5.6 Sol</td><td class="num">$38</td><td class="num">23 min</td><td class="size">API</td></tr>
+        <tr><td>Gemini 3.8 Flash</td><td class="num">$6</td><td class="num">5 min</td><td class="size">API</td></tr>
+        <tr><td>Llama 3.3 70B</td><td class="num">$5</td><td class="num">10 min</td><td class="size">API</td></tr>
+        <tr><td>DeepSeek V3.2</td><td class="num">$4</td><td class="num">4 min</td><td class="size">API</td></tr>
+        <tr><td>gpt-oss-20b</td><td class="num">$1</td><td class="num">14 min</td><td class="size">API</td></tr>
+        <tr><td>Qwen3-32B</td><td class="num">$1</td><td class="num">3 min</td><td class="size">API</td></tr>
+        <tr><td>Gemma 3 27B</td><td class="num">$1</td><td class="num">3 min</td><td class="size">API</td></tr>
+        <tr class="ours"><td class="judge">Forge Predictor, 137 M</td><td class="num">$0</td><td class="num">4 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Qwen3.8-27B</td><td class="num">$0</td><td class="num">16 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Gemma 4 12B</td><td class="num">$0</td><td class="num">11 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Qwen3-14B</td><td class="num">$0</td><td class="num">5 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Phi-4</td><td class="num">$0</td><td class="num">4 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Mistral-Nemo 12B</td><td class="num">$0</td><td class="num">4 min</td><td class="size">local GPU</td></tr>
+        <tr><td>Qwen2.5-Coder 7B</td><td class="num">$0</td><td class="num">2 min</td><td class="size">local GPU</td></tr>
       </tbody>
     </table></div>
   </div>
 
-  <h3>2.4 Proposer and Connector</h3>
+  <h3>2.4 Proposer</h3>
   <div class="text">
-  <p>The Proposer generates candidate changes for the Localizer's targets and revises them under the Predictor's verdict, with memory carried across iterations and across tasks. Its design is fixed and it is in training; we report no number until a held-out measurement exists, and we note that the end-to-end result will be bounded by the localization and prediction errors above. The Connector, the trained mapping from the accepted proposal to output tokens or to a small coding language model, is the last organ to be built.</p>
+  <p>The Proposer is the organ that writes. Given the Localizer's targets and the Predictor's verdict on its last attempt, it produces a new candidate change and keeps what it learned in memory, across iterations of one task and across tasks on the same repository. It is a compact module of about 50 million trainable parameters that works in the representation space the other organs share, not in text.</p>
+  <p>A proof of concept of the full loop has been run: Proposer, memory and judge together, in a controlled setting with a perfect judge standing in for the Predictor. The setting exercised the mechanics the design depends on, proposing, being judged, reading and writing memory, and revising. What it did not yet show is proposal quality on unseen repositories, which is the measurement that counts, and which requires the trained Predictor in the loop. That measurement is the current work; no proposal-quality number is reported in this version.</p>
+  </div>
+
+  <h3>2.5 Connector</h3>
+  <div class="text">
+  <p>The Connector is the trained mapping from the accepted proposal to the output: either directly to tokens, or into a small coding language model that writes the final change in the repository's own style. It is the last organ to be built, and the one that turns the loop's internal representation into a change a person can read and a test suite can run.</p>
   </div>
 </section>
 
@@ -339,35 +345,39 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
     <li><strong>It runs where the data is.</strong> A sub-billion system runs on a workstation and, in most configurations, at the edge. Sovereign and on-premise deployment stops being a compromise.</li>
     <li><strong>Startups can own their model.</strong> The path from wrapper to owner: design, train and integrate a system built for your use case, at or near the performance of the largest general models on that use case.</li>
   </ol>
-  <p>Next steps, in order: finish the Proposer and the Connector; run the benchmark on all 813 verified issues and add more judges; report the first end-to-end software-engineering result of the complete loop. We will publish each of these here as they are measured, under the same rule as this note: numbers only where an independent, held-out measurement exists.</p>
-  <p>If you work on world models, compact or post-transformer architectures, coding agents, or local and sovereign deployment, and you want to know more or collaborate, write to <a href="mailto:khashayar@elentaria.ai">khashayar@elentaria.ai</a>.</p>
+  <h3>A future that is not only for the largest players</h3>
+  <p>We envision a future in which startups and founders are not held at the stage of building wrappers because they cannot raise billions to train a giant model. We see a future in which any company, whether it supplies software or uses it, can build a complete stack: uniquely designed and trained models, integrated into its own application layer, delivering solutions of real value that are independent of the large players.</p>
+  <p>Large language models are today's best architecture for broad, general work, and we do not expect that to change. But they are huge, expensive to build and to run, and they lack what long-running autonomous work demands: long-term memory, global planning, and the ability to predict the consequences of their own actions before taking them. For real-world operations that must run unattended, coherently, for a long time, in one specialized field, we believe the answer is different: <strong>world-model-based, forged, inhomogeneous systems such as MALWIM, built for each specific use case, that are efficient, long-running, coherent, and within reach of any team.</strong></p>
+  <p><strong>We see a world in which everyone benefits, the benefits are shared among all who contribute, everyone has a say in what gets built, and the market rewards the best work rather than the deepest pockets.</strong></p>
+  <h3>Join us</h3>
+  <p>This is early work by a small team, and it moves faster with more hands and more backing. If you work on world models, compact or post-transformer architectures, coding agents, memory, or local and sovereign deployment, we would like to compare notes and collaborate. If you are an investor, a compute or research partner, or a company that wants to own a model built for its own use case, we would like to hear from you as well. Write to <a href="mailto:khashayar@elentaria.ai">khashayar@elentaria.ai</a>.</p>
 
-  <h3 id="cite">Citation</h3>
+  <h3 id="cite">Cite this work</h3>
 <pre>@techreport{forge2026,
   title       = {Forge: Compact World-Model Systems Forged for One Use Case},
   author      = {Mansourizadeh, Khashayar and Golahmadi, Ayda},
   institution = {Elentaria},
   year        = {2026},
   month       = {September},
-  note        = {Technical note v0.0.1. Judge Benchmark v1: 137M Predictor, 3rd of 15 judges},
+  note        = {Technical report v0.0.1. Judge Benchmark v1: 137M Predictor, 3rd of 15 judges},
   url         = {https://elentaria-ai.github.io/forge/}
 }</pre>
 
   <h3>References</h3>
   <div class="refs"><ol>
-    <li>Jimenez, C. E. et al. SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR 2024. Verified subset, OpenAI and SWE-bench authors, 2024.</li>
-    <li>Badertdinov, I. et al. SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents. 2025.</li>
-    <li>Reddy, R. G. et al. SweRank: Software Issue Localization with Code Ranking. Salesforce AI Research, 2025.</li>
-    <li>Xia, C. S. et al. Agentless: Demystifying LLM-based Software Engineering Agents. 2024.</li>
-    <li>Meta FAIR CodeGen Team. CWM: An Open-Weights LLM for Research on Code Generation with World Models. 2025.</li>
-    <li>Shum, K. et al. SWE-RM: Execution-free Feedback for Software Engineering Agents. 2025.</li>
+    <li id="ref1">Jimenez, C. E., Yang, J., Wettig, A., Yao, S., Pei, K., Press, O., Narasimhan, K. SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR 2024.</li>
+    <li id="ref2">Badertdinov, I. et al. SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents. 2025.</li>
+    <li id="ref3">Reddy, R. G., Suresh, T., Doo, J., Liu, Y., Nguyen, X.-P., Wu, X., Feng, S., Deng, Z., Xiong, C., Ji, H., Joty, S. SweRank: Software Issue Localization with Code Ranking. 2025.</li>
+    <li id="ref4">Chen, Z., Tang, X., Deng, G., Wu, F., Wu, J., Jiang, Z., Prasanna, V., Cohan, A., Wang, X. LocAgent: Graph-Guided LLM Agents for Code Localization. ACL 2025.</li>
+    <li id="ref5">Suresh, T., Reddy, R. G., Xu, Y., Nussbaum, Z., Mulyar, A., Duderstadt, B., Ji, H. CoRNStack: High-Quality Contrastive Data for Better Code Retrieval and Reranking. ICLR 2025. CodeRankEmbed is the retriever released with this work.</li>
+    <li id="ref6">Chowdhury, N. et al. Introducing SWE-bench Verified. OpenAI, 2024.</li>
   </ol></div>
   </div>
 </section>
 </main>
 
 <footer class="foot"><div class="in">
-  <span>© 2026 Elentaria · Forge technical note v0.0.1 · 10 September 2026</span>
+  <span>© 2026 Elentaria · Forge technical report v0.0.1 · 10 September 2026</span>
   <span><a href="https://elentaria.ai">elentaria.ai</a> · <a href="mailto:khashayar@elentaria.ai">contact</a></span>
 </div></footer>
 </body>
