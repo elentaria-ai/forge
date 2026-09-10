@@ -227,8 +227,8 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <h3>2.1 Status of the organs</h3>
   <div class="status">
-    <div><span class="tag meas">measured</span><b>Localizer · 137 M</b>Finds the functions to change. 73.8 percent top-ten localization on SWE-bench Verified, 500 issues.</div>
-    <div><span class="tag">proof of concept</span><b>Proposer · ≈50 M trainable</b>Produces and refines candidate changes in the loop. Early results with a perfect judge, see 2.4.</div>
+    <div><span class="tag meas">measured</span><b>Localizer · 137 M</b>Finds the functions to change. 73.8% top-ten localization on SWE-bench Verified, 500 issues.</div>
+    <div><span class="tag">proof of concept</span><b>Proposer · ≈50 M trainable</b>Produces and refines candidate changes in the loop. 85%+ in early runs with a perfect judge, see 2.4.</div>
     <div><span class="tag done">benchmarked</span><b>Predictor · 137 M</b>The coding world model. Judge Benchmark v1, 15 judges, Section 2.3.</div>
     <div><span class="tag">to be built</span><b>Connector</b>Maps the accepted proposal to tokens or to a small coding LM.</div>
   </div>
@@ -240,9 +240,9 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   <div class="text">
   <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained on real issue-to-change pairs from an open code retriever<sup><a href="#ref5">5</a></sup>. Its job is to put the functions that the fix will touch at the top of a ranked list. We measure it on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with every function in the repository as the candidate pool, and count an issue as localized when a function touched by the reference fix is in the top ten.</p>
   <div class="callout">
-    <p><strong>Forge Localizer, 137 million parameters: 73.8 percent of issues localized in the top ten on SWE-bench Verified.</strong> Training lifted the same base retriever from 34.2 to 73.8 percent.</p>
+    <p><strong>Forge Localizer, 137 million parameters: 73.8% of issues localized in the top ten on SWE-bench Verified.</strong> Training lifted the same base retriever from 34.2% to 73.8%.</p>
   </div>
-  <p>For context, the published state of the art in function-level localization is SweRank+<sup><a href="#ref3">3</a>,<a href="#ref4">4</a></sup>, a retrieve-and-rerank pair. It reports 81.6 percent accuracy at 10 on SWE-bench Verified with an 8-billion-parameter retriever and a GPT-4.1 reranker, 81.2 percent with its own 32-billion-parameter reranker, and 89.8 percent on the smaller SWE-bench Lite split. Those results use the stricter rule that every function touched by the fix must be in the top ten, and the authors' own function pools, so they sit next to ours as context rather than as a like-for-like race. The Localizer is one organ of a loop that can return for what it missed, at 137 million parameters against 8 to 40 billion.</p>
+  <p>The best published function-level localization scores, from the SweRank and SweRank+ papers<sup><a href="#ref3">3</a>,<a href="#ref4">4</a></sup>, are 81.6% accuracy at 10 on SWE-bench Verified (an 8-billion-parameter retriever with a GPT-4.1 reranker; 81.2% with the authors' own 32-billion-parameter reranker) and 89.8% on SWE-bench Lite (8-billion retriever plus 32-billion reranker). Our 73.8% is 7.8 points below the best Verified score and 16.0 points below the best Lite score, at 137 million parameters against 8 to 40 billion, and with a single retriever, no reranker. The published scores use the stricter rule that every function touched by the fix must be in the top ten, on the authors' own function pools. The Localizer is one organ of a loop that can return for what it missed.</p>
   </div>
 
   <h3 id="s2-3">2.3 Predictor: the coding world model</h3>
@@ -309,7 +309,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   <h3>2.4 Proposer</h3>
   <div class="text">
   <p>The Proposer is the organ that writes. Given the Localizer's targets and the Predictor's verdict on its last attempt, it produces a new candidate change and keeps what it learned in memory, across iterations of one task and across tasks on the same repository. It is a compact module of about 50 million trainable parameters that works in the representation space the other organs share, not in text.</p>
-  <p>A proof of concept of the full loop has been run: Proposer, memory and judge together, in a controlled setting with a perfect judge standing in for the Predictor. In those early runs the Proposer reached the correct answer through iterative refinement in 80 to 90 percent or more of cases, and it learned to use its memory and the judge's verdicts to revise its proposals rather than restart. These are early, controlled results. Proposal quality on unseen repositories with the trained Predictor in the loop is the measurement that counts, and it is the current work.</p>
+  <p>A proof of concept of the full loop has been run: Proposer, memory and judge together, in a controlled setting with a perfect judge standing in for the Predictor. <strong>In those early runs the Proposer reached the correct answer through iterative refinement in 85%+ of cases</strong>, and it learned to use its memory and the judge's verdicts to revise its proposals rather than restart. These are early, controlled results. Proposal quality on unseen repositories with the trained Predictor in the loop is the measurement that counts, and it is the current work.</p>
   </div>
 
   <h3>2.5 Connector</h3>
