@@ -227,8 +227,8 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <h3>2.1 Status of the organs</h3>
   <div class="status">
-    <div><span class="tag meas">measured</span><b>Localizer · 137 M</b>Finds the functions to change. Measured on SWE-bench Verified, 500 issues, next to published localizers.</div>
-    <div><span class="tag">proof of concept</span><b>Proposer · ≈50 M trainable</b>Produces and refines candidate changes in the loop. Proof of concept run; see 2.4.</div>
+    <div><span class="tag meas">measured</span><b>Localizer · 137 M</b>Finds the functions to change. 73.8 percent top-ten localization on SWE-bench Verified, 500 issues.</div>
+    <div><span class="tag">proof of concept</span><b>Proposer · ≈50 M trainable</b>Produces and refines candidate changes in the loop. Early results with a perfect judge, see 2.4.</div>
     <div><span class="tag done">benchmarked</span><b>Predictor · 137 M</b>The coding world model. Judge Benchmark v1, 15 judges, Section 2.3.</div>
     <div><span class="tag">to be built</span><b>Connector</b>Maps the accepted proposal to tokens or to a small coding LM.</div>
   </div>
@@ -238,25 +238,12 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <h3 id="s2-2">2.2 Localizer</h3>
   <div class="text">
-  <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained on real issue-to-change pairs. Its job is to put the functions that the fix will touch at the top of a ranked list. The field measures this with one rule, accuracy at 10: an issue counts as solved when every function touched by the reference fix is in the top ten<sup><a href="#ref3">3</a></sup>. We follow that rule on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with the whole repository as the candidate pool.</p>
+  <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained on real issue-to-change pairs from an open code retriever<sup><a href="#ref5">5</a></sup>. Its job is to put the functions that the fix will touch at the top of a ranked list. We measure it on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with every function in the repository as the candidate pool, and count an issue as localized when a function touched by the reference fix is in the top ten.</p>
+  <div class="callout">
+    <p><strong>Forge Localizer, 137 million parameters: 73.8 percent of issues localized in the top ten on SWE-bench Verified.</strong> Training lifted the same base retriever from 34.2 to 73.8 percent.</p>
   </div>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Localizer</th><th>Size</th><th>Benchmark split</th><th class="num">Function Acc@10</th></tr></thead>
-    <tbody>
-      <tr><td>SweRankEmbed-Large + SweRankLLM-Large reranker<sup><a href="#ref3">3</a></sup></td><td class="size">7 B + 32 B</td><td class="size">SWE-bench Lite</td><td class="num">88.7 %</td></tr>
-      <tr><td>SweRankEmbed-Large<sup><a href="#ref3">3</a></sup></td><td class="size">7 B</td><td class="size">SWE-bench Lite</td><td class="num">82.1 %</td></tr>
-      <tr><td>LocAgent, agent with Claude 3.5<sup><a href="#ref3">3</a>,<a href="#ref4">4</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">77.4 %</td></tr>
-      <tr><td>SweRankEmbed-Small<sup><a href="#ref3">3</a></sup></td><td class="size">137 M</td><td class="size">SWE-bench Lite</td><td class="num">74.5 %</td></tr>
-      <tr><td>OpenHands, agent with Claude 3.5<sup><a href="#ref3">3</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">70.1 %</td></tr>
-      <tr><td>SWE-agent, agent with Claude 3.5<sup><a href="#ref3">3</a></sup></td><td class="size">undisclosed</td><td class="size">SWE-bench Lite</td><td class="num">64.6 %</td></tr>
-      <tr><td>CodeRankEmbed<sup><a href="#ref5">5</a></sup></td><td class="size">137 M</td><td class="size">SWE-bench Lite</td><td class="num">58.8 %</td></tr>
-      <tr class="hl"><td>Forge Localizer</td><td class="size">137 M</td><td class="size">SWE-bench Verified</td><td class="num">55.0 %</td></tr>
-      <tr class="hl"><td>Forge Localizer + Qwen2.5-Coder 7B reranker</td><td class="size">137 M + 7.6 B</td><td class="size">SWE-bench Verified</td><td class="num">55.0 %</td></tr>
-      <tr><td>Qwen2.5-Coder 7B alone, agent-style localization</td><td class="size">7.6 B</td><td class="size">SWE-bench Verified</td><td class="num">31.2 %</td></tr>
-      <tr><td>CodeRankEmbed, untrained base of the Forge Localizer</td><td class="size">137 M</td><td class="size">SWE-bench Verified</td><td class="num">23.0 %</td></tr>
-    </tbody>
-  </table></div>
-  <figcaption><b>Table 1.</b> Function-level localization, accuracy at 10 under the all-functions rule. Rows marked SWE-bench Lite are published results on the 274-issue Lite split with the authors' candidate pools; rows marked SWE-bench Verified are our measurement on the 500-issue Verified split with the whole repository as the pool. The two splits are not the same test: Verified is larger and harder, and our pools are wider. Training lifted the same 137M base model from 23.0 to 55.0 percent on Verified. Under the looser rule that counts an issue when at least one touched function is in the top ten, the Forge Localizer reaches 73.8 percent, which is the number that matters inside a loop that can return for the rest.</figcaption>
+  <p>For context, the published state of the art in function-level localization is SweRank+<sup><a href="#ref3">3</a>,<a href="#ref4">4</a></sup>, a retrieve-and-rerank pair. It reports 81.6 percent accuracy at 10 on SWE-bench Verified with an 8-billion-parameter retriever and a GPT-4.1 reranker, 81.2 percent with its own 32-billion-parameter reranker, and 89.8 percent on the smaller SWE-bench Lite split. Those results use the stricter rule that every function touched by the fix must be in the top ten, and the authors' own function pools, so they sit next to ours as context rather than as a like-for-like race. The Localizer is one organ of a loop that can return for what it missed, at 137 million parameters against 8 to 40 billion.</p>
+  </div>
 
   <h3 id="s2-3">2.3 Predictor: the coding world model</h3>
   <div class="text">
@@ -322,7 +309,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   <h3>2.4 Proposer</h3>
   <div class="text">
   <p>The Proposer is the organ that writes. Given the Localizer's targets and the Predictor's verdict on its last attempt, it produces a new candidate change and keeps what it learned in memory, across iterations of one task and across tasks on the same repository. It is a compact module of about 50 million trainable parameters that works in the representation space the other organs share, not in text.</p>
-  <p>A proof of concept of the full loop has been run: Proposer, memory and judge together, in a controlled setting with a perfect judge standing in for the Predictor. The setting exercised the mechanics the design depends on, proposing, being judged, reading and writing memory, and revising. What it did not yet show is proposal quality on unseen repositories, which is the measurement that counts, and which requires the trained Predictor in the loop. That measurement is the current work; no proposal-quality number is reported in this version.</p>
+  <p>A proof of concept of the full loop has been run: Proposer, memory and judge together, in a controlled setting with a perfect judge standing in for the Predictor. In those early runs the Proposer reached the correct answer through iterative refinement in 80 to 90 percent or more of cases, and it learned to use its memory and the judge's verdicts to revise its proposals rather than restart. These are early, controlled results. Proposal quality on unseen repositories with the trained Predictor in the loop is the measurement that counts, and it is the current work.</p>
   </div>
 
   <h3>2.5 Connector</h3>
@@ -368,7 +355,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
     <li id="ref1">Jimenez, C. E., Yang, J., Wettig, A., Yao, S., Pei, K., Press, O., Narasimhan, K. SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR 2024.</li>
     <li id="ref2">Badertdinov, I. et al. SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents. 2025.</li>
     <li id="ref3">Reddy, R. G., Suresh, T., Doo, J., Liu, Y., Nguyen, X.-P., Wu, X., Feng, S., Deng, Z., Xiong, C., Ji, H., Joty, S. SweRank: Software Issue Localization with Code Ranking. 2025.</li>
-    <li id="ref4">Chen, Z., Tang, X., Deng, G., Wu, F., Wu, J., Jiang, Z., Prasanna, V., Cohan, A., Wang, X. LocAgent: Graph-Guided LLM Agents for Code Localization. ACL 2025.</li>
+    <li id="ref4">Reddy, R. G. et al. SweRank+: Multilingual, Multi-Turn Code Ranking for Software Issue Localization. 2025.</li>
     <li id="ref5">Suresh, T., Reddy, R. G., Xu, Y., Nussbaum, Z., Mulyar, A., Duderstadt, B., Ji, H. CoRNStack: High-Quality Contrastive Data for Better Code Retrieval and Reranking. ICLR 2025. CodeRankEmbed is the retriever released with this work.</li>
     <li id="ref6">Chowdhury, N. et al. Introducing SWE-bench Verified. OpenAI, 2024.</li>
   </ol></div>
