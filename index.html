@@ -6,7 +6,7 @@
 <title>Forge: Compact World-Model Systems for One Use Case</title>
 <meta name="description" content="Forge builds compact, specialized model systems forged for one use case around a domain world model. First results on coding: the 137M Predictor ranks third of 15 judges on a verified fix-recognition benchmark.">
 <meta property="og:title" content="Forge: Compact World-Model Systems for One Use Case">
-<meta property="og:description" content="A 137M-parameter coding world model ranks third of 15 judges, next to Claude Opus 5 and GPT-5.6 Sol, and first at catching broken fixes.">
+<meta property="og:description" content="A 137M-parameter coding world model ranks third of 15 judges, next to Claude Opus 5 and GPT-5.6 Sol, and rejects broken versions of a fix better than any judge that accepts the real one.">
 <meta property="og:type" content="article">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -71,6 +71,7 @@ td.num,th.num{text-align:center;font-family:var(--mono)}
 td.rank{font-family:var(--mono);color:var(--ink-3);width:2.5em}
 td.judge{font-weight:500;white-space:nowrap}
 td.size{color:var(--ink-2);white-space:nowrap}
+td.num{white-space:nowrap}
 .bar{display:flex;align-items:center;gap:10px;min-width:200px}
 .bar .track{flex:1;height:8px;background:var(--rule);border-radius:2px;overflow:hidden}
 .bar .fill{height:100%;background:var(--bar);border-radius:2px}
@@ -125,7 +126,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
   <div class="abstract text">
     <h2>Abstract</h2>
     <p>Most of the field expects capability to come from ever larger homogeneous models. We take the other road. Forge is a method for building a compact system of specialized parts for one use case, forged around a domain world model that carries long-term memory, understands the domain, and predicts the consequences of actions before they are taken. The parts do not need to share an architecture; they are connected through trained connectors and each acts as an organ with one job. We call the resulting architecture <strong>MALWIM: Multi-Stage Agentic Loops With Inhomogeneous Models</strong>.</p>
-    <p>This report describes the first instance, built for software engineering, and presents the first measured results of its organs. The core organ, the Predictor, is a <strong>137-million-parameter coding world model</strong> that scores a proposed code change against the issue it is meant to fix, without running any test: much as a person weighs the consequences of an action in their mind before acting in the world. That judgement is what lets the system iterate and refine its proposals until it reaches the best outcome it can. On a benchmark of 100 test-verified GitHub issues and 938 candidate changes, it ranks third of 15 judges by balanced accuracy, tied with Gemini 3.8 Flash and behind Claude Opus 5 and GPT-5.6 Sol, and first of all 15 at rejecting broken versions of a fix. The whole system stays under one billion parameters, runs on a single workstation GPU, and was built by two co-founders for under $15,000.</p>
+    <p>This report describes the first instance, built for software engineering, and presents the first measured results of its organs. The core organ, the Predictor, is a <strong>137-million-parameter coding world model</strong> that scores a proposed code change against the issue it is meant to fix, without running any test: much as a person weighs the consequences of an action in their mind before acting in the world. That judgement is what lets the system iterate and refine its proposals until it reaches the best outcome it can. On a benchmark of 100 test-verified GitHub issues and 938 candidate changes, it ranks third of 15 judges by balanced accuracy, tied with Gemini 3.8 Flash and behind Claude Opus 5 and GPT-5.6 Sol, and, of the judges that accept the real fix, first at rejecting broken versions of it. The whole system stays under one billion parameters, runs on a single workstation GPU, and was built by two co-founders for under $15,000.</p>
   </div>
 </header>
 
@@ -238,7 +239,7 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
 
   <h3 id="s2-2">2.2 Localizer</h3>
   <div class="text">
-  <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained on real issue-to-change pairs from an open code retriever<sup><a href="#ref5">5</a></sup>. Its job is to put the functions that the fix will touch at the top of a ranked list. We measure it on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with every function in the repository as the candidate pool, and count an issue as localized when a function touched by the reference fix is in the top ten.</p>
+  <p>The Localizer is a 137-million-parameter retriever over the functions of a repository, trained from an open code retriever<sup><a href="#ref5">5</a></sup> on real issue-to-change pairs. Its job is to put the functions that the fix will touch at the top of a ranked list. We measure it on SWE-bench Verified<sup><a href="#ref1">1</a>,<a href="#ref6">6</a></sup>, all 500 issues, with every function in the repository as the candidate pool, and count an issue as localized when a function touched by the reference fix is in the top ten.</p>
   <div class="callout">
     <p><strong>Forge Localizer, 137 million parameters: 73.8% of issues localized in the top ten on SWE-bench Verified.</strong> Training lifted the same base retriever from 34.2% to 73.8%.</p>
   </div>
@@ -273,11 +274,11 @@ pre{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);border-r
       <tr><td class="rank">15</td><td class="judge">Mistral-Nemo 12B</td><td class="size">12.2 B · 4-bit, local</td><td><div class="bar"><div class="track"><div class="fill" style="width:20.1%"></div></div><span class="val">20.1 %</span></div></td><td class="num">27</td><td class="num">197</td></tr>
     </tbody>
   </table></div>
-  <figcaption><b>Table 3.</b> Judge Benchmark v1, 15 judges, same 100 issues and 938 candidate changes each. Sizes of open models are as reported by their authors; the three closed models are undisclosed and the figures are third-party estimates. The Predictor and Gemini 3.8 Flash tie at the third decimal. With 100 issues, differences under about three points are within sampling noise.</figcaption>
+  <figcaption><b>Table 1.</b> Judge Benchmark v1, 15 judges, same 100 issues and 938 candidate changes each. Sizes of open models are as reported by their authors; the three closed models are undisclosed and the figures are third-party estimates. The Predictor and Gemini 3.8 Flash tie at the third decimal. With 100 issues, differences under about three points are within sampling noise.</figcaption>
 
   <div class="text">
   <h4>How to read it</h4>
-  <p>The Predictor accepts real fixes as reliably as the best model in the test (191 of 200, the same as Claude Opus 5) and rejects broken versions of a fix better than any of the 14 language models, including the two above it. That is the world-model property: predicting what a change does rather than whether it looks plausible. The models fall into two regimes. Lenient judges (DeepSeek V3.2, Qwen3-32B, Llama 3.3 70B) accept the real fix and most broken variants alike; they answer only 0 or 100 and reject fewer than one in ten of the broken versions that change a single token or line. Strict judges (GPT-5.6 Sol, Claude Opus 5, gpt-oss-20b, Gemini) reject half or more of those at the price of rejecting 10 to 26 percent of real fixes. The Predictor is the only judge that combines the lenient group's acceptance of real fixes with the strict group's rejection of broken ones.</p>
+  <p>The Predictor accepts real fixes at the rate of the top-ranked model (191 of 200, the same as Claude Opus 5) and rejects broken versions of a fix, 62 percent of them, better than any language model that accepts the real fix, including the two ranked above it. The one judge that rejects more broken versions, Qwen2.5-Coder 7B, also rejects three of every four real fixes. That is the world-model property: predicting what a change does rather than whether it looks plausible. The models fall into two regimes. Lenient judges (DeepSeek V3.2, Qwen3-32B, Llama 3.3 70B) accept the real fix and most broken versions alike: they answer almost only 0 or 100 and reject 8 to 15 percent of the broken versions. Strict judges (GPT-5.6 Sol, Claude Opus 5, gpt-oss-20b, Gemini 3.8 Flash) reject 44 to 58 percent of them at the price of rejecting 4 to 20 percent of real fixes. The Predictor is the only judge that combines the lenient group's acceptance of real fixes with the strict group's rejection of broken ones.</p>
   </div>
   <div class="two">
     <div>
